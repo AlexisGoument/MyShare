@@ -8,7 +8,11 @@ type GetWifiSSID() =
     let wifiManager: WifiManager = (Android.App.Application.Context.GetSystemService(Context.WifiService)) :?> WifiManager
 
     interface IGetWifiSSID with
-        member this.WifiSSID() = Some wifiManager.ConnectionInfo.SSID
+        member this.WifiSSID() =
+            if wifiManager.IsWifiEnabled then
+                Some wifiManager.ConnectionInfo.SSID
+            else
+                None
 
 [<assembly: Dependency(typeof<GetWifiSSID>)>]
 ()

@@ -43,11 +43,12 @@ module App =
         if Permissions.ShouldShowRationale<Permissions.LocationWhenInUse>() then
             Permissions.RequestAsync<Permissions.LocationWhenInUse>() |> Async.AwaitIAsyncResult |> Async.RunSynchronously |> ignore
         let wifiConfig = DependencyService.Get<GetWifiSSID.IGetWifiSSID>()
-        wifiConfig.WifiSSID() |> ignore
-        //match wifiConfig.WifiSSID() with
-        //| Some ssid -> ssid
-        //| None -> ""
-        ""
+        try
+            match wifiConfig.WifiSSID() with
+            | Some ssid -> ssid
+            | None -> "[Disabled]"
+        with
+            | ex -> "[Failed]"
 
     let initModel = { Count = 0; Step = 1; TimerOn=false; Ip = getIp(); IpTarget = "192.168.1.146"; WifiName = getWifiName() }
 
@@ -111,7 +112,7 @@ module App =
                 View.Button(text = "File", command = fun () -> dispatch SendFile)
                 View.StackLayout(orientation = StackOrientation.Horizontal,
                     children = [
-                        View.Label(text = sprintf "Wifi: %s" model.WifiName, horizontalOptions = LayoutOptions.Start)
+                        View.Label(text = sprintf "Wifi: %s" model.WifiName, horizontalOptions = LayoutOptions.StartAndExpand)
                         View.Label(text = sprintf "MyIP: %s" model.Ip, horizontalOptions = LayoutOptions.End)
                     ])
                 View.StackLayout(orientation = StackOrientation.Horizontal,
